@@ -75,23 +75,34 @@ struct PanagramCounter {
 // Time Complexity is O(n) with n == size of String.
 // Space Complexity is O(1). Constant Space complexity.
 fn is_kind_of_panagram(s: String) -> KindOfPanagram {
-    let mut char_map: [u8; 26] = [0; 26];
+    // early return statement
+    if s.len() < 26 { return KindOfPanagram::None }
+
+    let mut char_map: [bool; 26] = [false; 26];
+    let mut unique_chars = 0;
     let mut out = KindOfPanagram::Perfect;
 
     for char in s.chars() {
         let lower_case_ascii_char = char.to_ascii_lowercase();
 
         if lower_case_ascii_char.is_alphabetic() {
-            char_map[(lower_case_ascii_char as u8 - b'a') as usize] += 1;
+            let idx = (lower_case_ascii_char as u8 - b'a') as usize;
+            if !char_map[idx] {
+                unique_chars += 1;
+                char_map[idx] = true;
+            } else {
+                out = KindOfPanagram::ImperfectPanagram;
+                // early return statement to avoid Long strings
+                if unique_chars == 26 {
+                    return out;
+                }
+            }
         }
     }
 
-    for letter in char_map {
-        match letter {
-            0 => return KindOfPanagram::None,
-            1 => continue,
-            _ => out = KindOfPanagram::ImperfectPanagram,
-        }
-    };
+    if unique_chars != 26 {
+        return KindOfPanagram::None;
+    }
+
     out
 }
